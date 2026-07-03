@@ -984,6 +984,13 @@
 .image-picker--team .image-picker__surface {
   width: 132px;
   height: 132px;
+  border-style: solid;
+  border-radius: 0;
+  background: transparent;
+}
+
+.image-picker--team.image-picker--filled .image-picker__surface {
+  background: transparent;
 }
 
 .image-picker:hover .image-picker__surface,
