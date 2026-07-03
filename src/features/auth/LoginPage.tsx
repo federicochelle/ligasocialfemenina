@@ -59,7 +59,6 @@ export function LoginPage() {
 
         <header className="auth-header">
           <h1 id="login-title">Panel Administrativo</h1>
-          <p>Ingresá con tu cuenta de administrador.</p>
         </header>
 
         <form className="auth-form" onSubmit={handleSubmit}>

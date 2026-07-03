@@ -68,7 +68,6 @@ export function NewsTable({
                   </td>
                   <td>
                     <div className="teams-table__name">{newsItem.title}</div>
-                    <div className="news-table__meta">/{newsItem.slug}</div>
                   </td>
                   <td>
                     <span
