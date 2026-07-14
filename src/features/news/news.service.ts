@@ -3,7 +3,7 @@ import { uploadNewsImage as uploadNewsImageAsset } from '../images/image-upload.
 import type { CreateNewsInput, News, UpdateNewsInput } from './news.types.ts'
 
 const newsColumns =
-  'id, title, slug, content, cover_image, published, published_at, created_at, updated_at'
+  'id, title, slug, excerpt, content, cover_image, published, published_at, created_at, updated_at'
 
 export async function getNews() {
   const { data, error } = await supabase

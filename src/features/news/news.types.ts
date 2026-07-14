@@ -2,6 +2,7 @@ export type News = {
   id: string
   title: string
   slug: string
+  excerpt: string | null
   content: string
   cover_image: string | null
   published: boolean
@@ -12,6 +13,7 @@ export type News = {
 
 export type NewsFormValues = {
   title: string
+  excerpt: string
   content: string
   cover_file: File | null
 }
@@ -19,6 +21,7 @@ export type NewsFormValues = {
 export type CreateNewsInput = {
   title: string
   slug: string
+  excerpt: string
   content: string
   cover_image: string | null
   published: boolean

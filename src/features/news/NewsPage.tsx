@@ -33,6 +33,7 @@ async function mapFormValues(values: NewsFormValues, currentNews?: News | null) 
   return {
     title: values.title,
     slug,
+    excerpt: values.excerpt,
     content: values.content,
     cover_image,
     published: currentNews?.published ?? false,
@@ -81,7 +82,9 @@ export function NewsPage() {
     }
 
     return news.filter((newsItem) => {
-      const searchableContent = [newsItem.title, newsItem.content].join(' ').toLowerCase()
+      const searchableContent = [newsItem.title, newsItem.excerpt ?? '', newsItem.content]
+        .join(' ')
+        .toLowerCase()
       return searchableContent.includes(normalizedSearch)
     })
   }, [news, searchTerm])

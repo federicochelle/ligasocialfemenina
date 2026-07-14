@@ -14,6 +14,7 @@ type NewsFormProps = {
 
 const defaultValues: NewsFormValues = {
   title: '',
+  excerpt: '',
   content: '',
   cover_file: null,
 }
@@ -25,6 +26,7 @@ function mapNewsToFormValues(news: News | null | undefined): NewsFormValues {
 
   return {
     title: news.title,
+    excerpt: news.excerpt ?? '',
     content: news.content,
     cover_file: null,
   }
@@ -73,6 +75,11 @@ export function NewsForm({
       return
     }
 
+    if (!values.excerpt.trim()) {
+      setErrorMessage('La bajada es obligatoria.')
+      return
+    }
+
     if (!values.content.trim()) {
       setErrorMessage('El contenido es obligatorio.')
       return
@@ -82,6 +89,7 @@ export function NewsForm({
     await onSubmit({
       ...values,
       title: values.title.trim(),
+      excerpt: values.excerpt.trim(),
       content: values.content.trim(),
     })
   }
@@ -109,17 +117,20 @@ export function NewsForm({
           </div>
 
           <div className="news-form__hero-grid">
-            <div className="field">
-              <label htmlFor="news-title">Titular *</label>
-              <input
-                id="news-title"
-                name="title"
-                value={values.title}
-                onChange={(event) =>
-                  setValues((current) => ({ ...current, title: event.target.value }))
-                }
-                required
-              />
+            <div className="news-form__content-column">
+              <div className="field">
+                <label htmlFor="news-title">Titular *</label>
+                <input
+                  id="news-title"
+                  name="title"
+                  placeholder="Escribí el titular de la noticia."
+                  value={values.title}
+                  onChange={(event) =>
+                    setValues((current) => ({ ...current, title: event.target.value }))
+                  }
+                  required
+                />
+              </div>
             </div>
 
             <div className="field news-form__cover-field">
@@ -187,11 +198,28 @@ export function NewsForm({
           </div>
 
           <div className="field">
-            <label htmlFor="news-content">Texto / contenido *</label>
+            <label htmlFor="news-excerpt">Bajada *</label>
+            <textarea
+              id="news-excerpt"
+              name="excerpt"
+              className="news-form__excerpt"
+              rows={3}
+              placeholder="Escribí un resumen breve que acompañe al titular."
+              value={values.excerpt}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, excerpt: event.target.value }))
+              }
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="news-content">Contenido *</label>
             <textarea
               id="news-content"
               name="content"
               rows={10}
+              placeholder="Escribí el contenido completo de la noticia."
               value={values.content}
               onChange={(event) =>
                 setValues((current) => ({ ...current, content: event.target.value }))
