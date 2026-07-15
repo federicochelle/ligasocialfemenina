@@ -16,6 +16,7 @@ const matchColumns = `
   home_team_id,
   away_team_id,
   match_date,
+  field,
   venue,
   status,
   home_score,

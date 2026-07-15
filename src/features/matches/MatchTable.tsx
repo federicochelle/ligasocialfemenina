@@ -42,7 +42,7 @@ export function MatchTable({
             <tr>
               <th>Fecha</th>
               <th>Partido</th>
-              <th>Estado</th>
+              <th>Cancha</th>
               <th>Resultado</th>
               <th>Acciones</th>
             </tr>
@@ -64,9 +64,7 @@ export function MatchTable({
                     </div>
                   </td>
                   <td>
-                    <div className="teams-table__description">
-                      {match.status === 'finished' ? 'Finalizado' : 'Programado'}
-                    </div>
+                    <div className="teams-table__description">{match.field ?? '-'}</div>
                   </td>
                   <td>
                     <div className="teams-table__description">{getMatchResult(match)}</div>

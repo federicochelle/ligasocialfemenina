@@ -24,6 +24,7 @@ function mapFormValues(values: MatchFormValues) {
     home_team_id: values.home_team_id,
     away_team_id: values.away_team_id,
     match_date: new Date(values.match_date).toISOString(),
+    field: values.field || null,
     venue: values.venue || null,
     status: 'scheduled' as const,
     home_score,
@@ -100,6 +101,7 @@ export function MatchesPage() {
       const searchableContent = [
         match.home_team?.name ?? '',
         match.away_team?.name ?? '',
+        match.field ?? '',
         match.venue ?? '',
         match.season_label ?? '',
         match.status,

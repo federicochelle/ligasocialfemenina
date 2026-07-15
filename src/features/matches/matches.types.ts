@@ -4,12 +4,14 @@ export type MatchTeamOption = {
 }
 
 export type MatchStatus = 'scheduled' | 'live' | 'finished' | 'cancelled'
+export type MatchField = 'Welcome' | 'Colón'
 
 export type Match = {
   id: string
   home_team_id: string
   away_team_id: string
   match_date: string
+  field: MatchField | null
   venue: string | null
   status: MatchStatus
   home_score: number | null
@@ -25,6 +27,7 @@ export type MatchFormValues = {
   home_team_id: string
   away_team_id: string
   match_date: string
+  field: MatchField | ''
   venue: string
   home_score: string
   away_score: string
@@ -35,6 +38,7 @@ export type CreateMatchInput = {
   home_team_id: string
   away_team_id: string
   match_date: string
+  field: MatchField | null
   venue: string | null
   status: MatchStatus
   home_score: number | null
