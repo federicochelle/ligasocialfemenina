@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { MatchDialog } from './MatchDialog.tsx'
 import type { Match, MatchFormValues, MatchTeamOption } from './matches.types.ts'
 
+const matchFieldOptions = ['Welcome', 'Colón'] as const
+
 type MatchFormProps = {
   open: boolean
   match?: Match | null
@@ -16,6 +18,7 @@ const defaultValues: MatchFormValues = {
   home_team_id: '',
   away_team_id: '',
   match_date: '',
+  field: '',
   venue: '',
   home_score: '',
   away_score: '',
@@ -31,6 +34,7 @@ function mapMatchToFormValues(match: Match | null | undefined): MatchFormValues 
     home_team_id: match.home_team_id,
     away_team_id: match.away_team_id,
     match_date: toDateTimeLocal(match.match_date),
+    field: match.field ?? '',
     venue: match.venue ?? '',
     home_score: match.home_score?.toString() ?? '',
     away_score: match.away_score?.toString() ?? '',
@@ -102,6 +106,11 @@ export function MatchForm({
       return
     }
 
+    if (!values.field) {
+      setErrorMessage('La cancha es obligatoria.')
+      return
+    }
+
     const hasHomeScore = values.home_score.trim() !== ''
     const hasAwayScore = values.away_score.trim() !== ''
     const homeScore = hasHomeScore ? Number(values.home_score) : 0
@@ -144,64 +153,89 @@ export function MatchForm({
       }
     >
       <form id="match-form" className="teams-form" onSubmit={handleSubmit}>
-        <div className="field">
-          <label htmlFor="match-home-team">Equipo local *</label>
-          <select
-            id="match-home-team"
-            name="home_team_id"
-            value={values.home_team_id}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, home_team_id: event.target.value }))
-            }
-            required
-            disabled={teamsLoading}
-          >
-            <option value="">
-              {teamsLoading ? 'Cargando equipos...' : 'Seleccioná el equipo local'}
-            </option>
-            {homeTeamOptions.map((team) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
+        <div className="field-grid">
+          <div className="field">
+            <label htmlFor="match-home-team">Equipo local *</label>
+            <select
+              id="match-home-team"
+              name="home_team_id"
+              value={values.home_team_id}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, home_team_id: event.target.value }))
+              }
+              required
+              disabled={teamsLoading}
+            >
+              <option value="">
+                {teamsLoading ? 'Cargando equipos...' : 'Seleccioná el equipo local'}
               </option>
-            ))}
-          </select>
-        </div>
+              {homeTeamOptions.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="field">
-          <label htmlFor="match-away-team">Equipo visitante *</label>
-          <select
-            id="match-away-team"
-            name="away_team_id"
-            value={values.away_team_id}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, away_team_id: event.target.value }))
-            }
-            required
-            disabled={teamsLoading}
-          >
-            <option value="">
-              {teamsLoading ? 'Cargando equipos...' : 'Seleccioná el equipo visitante'}
-            </option>
-            {awayTeamOptions.map((team) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
+          <div className="field">
+            <label htmlFor="match-away-team">Equipo visitante *</label>
+            <select
+              id="match-away-team"
+              name="away_team_id"
+              value={values.away_team_id}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, away_team_id: event.target.value }))
+              }
+              required
+              disabled={teamsLoading}
+            >
+              <option value="">
+                {teamsLoading ? 'Cargando equipos...' : 'Seleccioná el equipo visitante'}
               </option>
-            ))}
-          </select>
-        </div>
+              {awayTeamOptions.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="field">
-          <label htmlFor="match-date">Fecha y hora *</label>
-          <input
-            id="match-date"
-            name="match_date"
-            type="datetime-local"
-            value={values.match_date}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, match_date: event.target.value }))
-            }
-            required
-          />
+          <div className="field">
+            <label htmlFor="match-date">Fecha y hora *</label>
+            <input
+              id="match-date"
+              name="match_date"
+              type="datetime-local"
+              value={values.match_date}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, match_date: event.target.value }))
+              }
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="match-field">Cancha *</label>
+            <select
+              id="match-field"
+              name="field"
+              value={values.field}
+              onChange={(event) =>
+                setValues((current) => ({
+                  ...current,
+                  field: event.target.value as MatchFormValues['field'],
+                }))
+              }
+              required
+            >
+              <option value="">Seleccioná una cancha</option>
+              {matchFieldOptions.map((fieldOption) => (
+                <option key={fieldOption} value={fieldOption}>
+                  {fieldOption}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
