@@ -10,10 +10,11 @@ import {
   createMatch,
   deleteMatch,
   getActiveTeams,
+  getMatchdays,
   getMatches,
   updateMatch,
 } from './matches.service.ts'
-import type { Match, MatchFormValues, MatchTeamOption } from './matches.types.ts'
+import type { Match, MatchFormValues, MatchTeamOption, MatchdayOption } from './matches.types.ts'
 import { matchStatusOptions } from './matches.types.ts'
 
 function mapFormValues(values: MatchFormValues) {
@@ -21,6 +22,7 @@ function mapFormValues(values: MatchFormValues) {
   const away_score = values.away_score.trim() === '' ? null : Number(values.away_score)
 
   return {
+    matchday_id: values.matchday_id,
     home_team_id: values.home_team_id,
     away_team_id: values.away_team_id,
     match_date: new Date(values.match_date).toISOString(),
@@ -41,10 +43,13 @@ export function MatchesPage() {
   const navigate = useNavigate()
   const [matches, setMatches] = useState<Match[]>([])
   const [teamOptions, setTeamOptions] = useState<MatchTeamOption[]>([])
+  const [matchdayOptions, setMatchdayOptions] = useState<MatchdayOption[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
   const [teamsLoading, setTeamsLoading] = useState(true)
+  const [matchdaysLoading, setMatchdaysLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [matchdaysErrorMessage, setMatchdaysErrorMessage] = useState<string | null>(null)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null)
@@ -83,9 +88,27 @@ export function MatchesPage() {
     }
   }, [])
 
+  const loadMatchdays = useCallback(async () => {
+    setMatchdaysLoading(true)
+    setMatchdaysErrorMessage(null)
+
+    try {
+      const nextMatchdays = await getMatchdays()
+      setMatchdayOptions(nextMatchdays)
+    } catch (error) {
+      const nextMessage =
+        error instanceof Error ? error.message : 'No pudimos cargar las fechas.'
+      setMatchdayOptions([])
+      setMatchdaysErrorMessage(nextMessage)
+      setErrorMessage(nextMessage)
+    } finally {
+      setMatchdaysLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
-    void Promise.all([loadMatches(), loadActiveTeams()])
-  }, [loadActiveTeams, loadMatches])
+    void Promise.all([loadMatches(), loadActiveTeams(), loadMatchdays()])
+  }, [loadActiveTeams, loadMatchdays, loadMatches])
 
   const filteredMatches = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
@@ -104,6 +127,8 @@ export function MatchesPage() {
         match.field ?? '',
         match.venue ?? '',
         match.season_label ?? '',
+        match.matchday ? `fecha ${match.matchday.round_number}` : '',
+        match.matchday?.phase ?? '',
         match.status,
         statusLabel,
       ]
@@ -208,7 +233,7 @@ export function MatchesPage() {
           <CrudToolbar
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
-            searchPlaceholder="Buscar por equipos, cancha, temporada o estado"
+            searchPlaceholder="Buscar por equipos, fecha, cancha, temporada o estado"
             primaryAction={openCreateDialog}
             primaryLabel="+ Nuevo partido"
           />
@@ -250,7 +275,10 @@ export function MatchesPage() {
         open={isFormOpen}
         match={selectedMatch}
         teamOptions={teamOptions}
+        matchdayOptions={matchdayOptions}
         teamsLoading={teamsLoading}
+        matchdaysLoading={matchdaysLoading}
+        matchdaysErrorMessage={matchdaysErrorMessage}
         submitting={submitting}
         onClose={() => {
           setIsFormOpen(false)

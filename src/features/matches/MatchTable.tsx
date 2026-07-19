@@ -19,6 +19,17 @@ const dateFormatter = new Intl.DateTimeFormat('es-UY', {
   timeStyle: 'short',
 })
 
+const shortDateFormatter = new Intl.DateTimeFormat('es-UY', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+})
+
+const timeFormatter = new Intl.DateTimeFormat('es-UY', {
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
 function getMatchResult(match: Match) {
   if (match.status === 'scheduled') {
     return 'Pendiente'
@@ -55,7 +66,7 @@ export function MatchTable({
                 <tr key={match.id}>
                   <td>
                     <div className="teams-table__description">
-                      {dateFormatter.format(new Date(match.match_date))}
+                      {getMatchDateLabel(match)}
                     </div>
                   </td>
                   <td>
@@ -99,4 +110,18 @@ export function MatchTable({
       </div>
     </div>
   )
+}
+
+function getMatchDateLabel(match: Match) {
+  const matchDate = new Date(match.match_date)
+  const fullDateLabel = dateFormatter.format(matchDate)
+
+  if (!match.matchday) {
+    return fullDateLabel
+  }
+
+  const matchdayDate = shortDateFormatter.format(new Date(match.matchday.match_date))
+  const matchTime = timeFormatter.format(matchDate)
+
+  return `Fecha ${match.matchday.round_number} · ${matchdayDate} · ${matchTime}`
 }

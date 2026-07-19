@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { MatchDialog } from './MatchDialog.tsx'
-import type { Match, MatchFormValues, MatchTeamOption } from './matches.types.ts'
+import type { Match, MatchFormValues, MatchTeamOption, MatchdayOption } from './matches.types.ts'
 
 const matchFieldOptions = ['Welcome', 'Colón'] as const
 
@@ -8,13 +8,17 @@ type MatchFormProps = {
   open: boolean
   match?: Match | null
   teamOptions: MatchTeamOption[]
+  matchdayOptions: MatchdayOption[]
   teamsLoading: boolean
+  matchdaysLoading: boolean
+  matchdaysErrorMessage?: string | null
   submitting: boolean
   onClose: () => void
   onSubmit: (values: MatchFormValues) => Promise<void>
 }
 
 const defaultValues: MatchFormValues = {
+  matchday_id: '',
   home_team_id: '',
   away_team_id: '',
   match_date: '',
@@ -31,6 +35,7 @@ function mapMatchToFormValues(match: Match | null | undefined): MatchFormValues 
   }
 
   return {
+    matchday_id: match.matchday_id ?? '',
     home_team_id: match.home_team_id,
     away_team_id: match.away_team_id,
     match_date: toDateTimeLocal(match.match_date),
@@ -58,7 +63,10 @@ export function MatchForm({
   open,
   match,
   teamOptions,
+  matchdayOptions,
   teamsLoading,
+  matchdaysLoading,
+  matchdaysErrorMessage,
   submitting,
   onClose,
   onSubmit,
@@ -85,6 +93,11 @@ export function MatchForm({
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    if (!values.matchday_id) {
+      setErrorMessage('La fecha es obligatoria.')
+      return
+    }
 
     if (!values.home_team_id) {
       setErrorMessage('El equipo local es obligatorio.')
@@ -145,7 +158,7 @@ export function MatchForm({
             type="submit"
             className="primary-button"
             form="match-form"
-            disabled={submitting || teamsLoading}
+            disabled={submitting || teamsLoading || matchdaysLoading || Boolean(matchdaysErrorMessage)}
           >
             {submitting ? 'Guardando...' : match ? 'Guardar cambios' : 'Crear partido'}
           </button>
@@ -153,6 +166,29 @@ export function MatchForm({
       }
     >
       <form id="match-form" className="teams-form" onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="match-matchday">Fecha / Jornada *</label>
+          <select
+            id="match-matchday"
+            name="matchday_id"
+            value={values.matchday_id}
+            onChange={(event) =>
+              setValues((current) => ({ ...current, matchday_id: event.target.value }))
+            }
+            required
+            disabled={matchdaysLoading}
+          >
+            <option value="">
+              {matchdaysLoading ? 'Cargando fechas...' : 'Seleccioná una fecha'}
+            </option>
+            {matchdayOptions.map((matchday) => (
+              <option key={matchday.id} value={matchday.id}>
+                {formatMatchdayOptionLabel(matchday)}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div className="field-grid">
           <div className="field">
             <label htmlFor="match-home-team">Equipo local *</label>
@@ -238,8 +274,22 @@ export function MatchForm({
           </div>
         </div>
 
+        {matchdaysErrorMessage ? <p className="form-error">{matchdaysErrorMessage}</p> : null}
         {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
       </form>
     </MatchDialog>
   )
+}
+
+const matchdayDateFormatter = new Intl.DateTimeFormat('es-UY', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+})
+
+function formatMatchdayOptionLabel(matchday: MatchdayOption) {
+  const venue = matchday.venue?.trim() || 'A definir'
+  const dateLabel = matchdayDateFormatter.format(new Date(matchday.match_date))
+
+  return `Fecha ${matchday.round_number} — ${dateLabel} — ${venue}`
 }
