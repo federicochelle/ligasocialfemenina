@@ -22,9 +22,13 @@ function sanitizeNumericInput(value: string) {
 }
 
 function getPlayerLabel(player: MatchPlayer) {
+  const jerseyNumber =
+    player.jersey_number !== null && player.jersey_number !== undefined
+      ? `#${player.jersey_number} · `
+      : ''
   const position = player.position?.trim() ? ` · ${player.position}` : ''
 
-  return `${player.name}${position}`
+  return `${jerseyNumber}${player.name}${position}`
 }
 
 function renderTeamTable(

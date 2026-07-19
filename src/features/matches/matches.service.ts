@@ -2,19 +2,22 @@ import { supabase } from '../../lib/supabaseClient.ts'
 import type {
   CreateMatchInput,
   Match,
+  MatchdayOption,
   MatchTeamOption,
   UpdateMatchInput,
 } from './matches.types.ts'
 
-type MatchRow = Omit<Match, 'home_team' | 'away_team'> & {
+type MatchRow = Omit<Match, 'home_team' | 'away_team' | 'matchday'> & {
   home_team: MatchTeamOption | MatchTeamOption[] | null
   away_team: MatchTeamOption | MatchTeamOption[] | null
+  matchday: Omit<MatchdayOption, 'bye_team_id'> | Omit<MatchdayOption, 'bye_team_id'>[] | null
 }
 
 const matchColumns = `
   id,
   home_team_id,
   away_team_id,
+  matchday_id,
   match_date,
   field,
   venue,
@@ -24,6 +27,7 @@ const matchColumns = `
   season_label,
   created_at,
   updated_at,
+  matchday:matchdays!matches_matchday_id_fkey(id, round_number, match_date, venue, season_label, phase),
   home_team:teams!matches_home_team_id_fkey(id, name),
   away_team:teams!matches_away_team_id_fkey(id, name)
 `
@@ -117,9 +121,27 @@ export async function getActiveTeams() {
   return data satisfies MatchTeamOption[]
 }
 
+export async function getMatchdays() {
+  const { data, error } = await supabase
+    .from('matchdays')
+    .select('id, round_number, match_date, venue, season_label, phase, bye_team_id')
+    .eq('season_label', 'LSF 2026')
+    .eq('phase', 'regular')
+    .order('season_label', { ascending: true })
+    .order('phase', { ascending: true })
+    .order('round_number', { ascending: true })
+
+  if (error) {
+    throw new Error('No pudimos cargar las fechas.')
+  }
+
+  return data satisfies MatchdayOption[]
+}
+
 function mapMatchRow(match: MatchRow): Match {
   return {
     ...match,
+    matchday: normalizeMatchdayRelation(match.matchday),
     home_team: normalizeTeamRelation(match.home_team),
     away_team: normalizeTeamRelation(match.away_team),
   }
@@ -127,6 +149,16 @@ function mapMatchRow(match: MatchRow): Match {
 
 function normalizeTeamRelation(
   relation: MatchTeamOption | MatchTeamOption[] | null,
+) {
+  if (Array.isArray(relation)) {
+    return relation[0] ?? null
+  }
+
+  return relation
+}
+
+function normalizeMatchdayRelation(
+  relation: Omit<MatchdayOption, 'bye_team_id'> | Omit<MatchdayOption, 'bye_team_id'>[] | null,
 ) {
   if (Array.isArray(relation)) {
     return relation[0] ?? null
