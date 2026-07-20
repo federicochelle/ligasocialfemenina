@@ -10,6 +10,7 @@ import {
   deleteTeam,
   getTeams,
   teamHasAssociatedMatches,
+  uploadTeamImage,
   uploadTeamLogo,
   updateTeam,
 } from './teams.service.ts'
@@ -22,11 +23,15 @@ async function mapFormValues(values: TeamFormValues, currentTeam?: Team | null) 
   const logo_url = values.logo_file
     ? await uploadTeamLogo(values.logo_file)
     : currentTeam?.logo_url ?? null
+  const image_url = values.image_file
+    ? await uploadTeamImage(values.image_file)
+    : currentTeam?.image_url ?? null
 
   return {
     name: values.name,
     description: values.description || null,
     logo_url,
+    image_url,
     active: values.active,
   }
 }
@@ -92,7 +97,9 @@ export function TeamsPage() {
   const handleFormSubmit = async (values: TeamFormValues) => {
     setSubmitting(true)
     setErrorMessage(null)
-    setSubmitStatusMessage(values.logo_file ? 'Optimizando y subiendo logo...' : null)
+    setSubmitStatusMessage(
+      values.logo_file || values.image_file ? 'Optimizando y subiendo imágenes...' : null,
+    )
 
     try {
       if (selectedTeam) {

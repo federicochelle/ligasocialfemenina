@@ -1047,17 +1047,25 @@
 
 .team-form__hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px;
+  grid-template-columns: minmax(220px, 1fr) 132px 220px;
   align-items: start;
   gap: 20px;
 }
 
 .team-form__name-field {
-  max-width: 360px;
+  max-width: 100%;
 }
 
 .team-form__logo-field .field-status {
   margin-top: 10px;
+}
+
+.team-form__image-field {
+  min-width: 0;
+}
+
+.image-picker--team-wide .image-picker__surface {
+  width: 220px;
 }
 
 .image-picker--team.image-picker--filled .image-picker__surface {
@@ -1066,6 +1074,10 @@
 
 .image-picker--team .image-picker__preview {
   object-fit: contain;
+}
+
+.image-picker--team-wide .image-picker__preview {
+  object-fit: cover;
 }
 
 .news-form__cover-field {
@@ -1475,13 +1487,27 @@
   width: min(100%, 980px);
 }
 
+.dialog-panel--team {
+  width: min(100%, 980px);
+}
+
 .dialog-panel--news .dialog-header,
 .dialog-panel--news .dialog-footer {
   padding-left: 20px;
   padding-right: 20px;
 }
 
+.dialog-panel--team .dialog-header,
+.dialog-panel--team .dialog-footer {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
 .dialog-panel--news .dialog-body {
+  padding: 16px 20px 20px;
+}
+
+.dialog-panel--team .dialog-body {
   padding: 16px 20px 20px;
 }
 

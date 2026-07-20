@@ -1,8 +1,11 @@
 import { supabase } from '../../lib/supabaseClient.ts'
-import { uploadTeamLogo as uploadTeamLogoImage } from '../images/image-upload.service.ts'
+import {
+  uploadTeamImage as uploadTeamImageAsset,
+  uploadTeamLogo as uploadTeamLogoImage,
+} from '../images/image-upload.service.ts'
 import type { CreateTeamInput, Team, UpdateTeamInput } from './teams.types.ts'
 
-const teamColumns = 'id, name, logo_url, description, active, created_at, updated_at'
+const teamColumns = 'id, name, logo_url, image_url, description, active, created_at, updated_at'
 const TEAM_HAS_MATCHES_MESSAGE =
   'No podés eliminar este equipo porque tiene partidos asociados.'
 
@@ -22,6 +25,21 @@ function isForeignKeyConstraintError(error: ServiceErrorLike | null | undefined)
   return error.code === '23503' || normalizedMessage.includes('foreign key')
 }
 
+function mapCreateTeamInput(input: CreateTeamInput) {
+  return {
+    ...input,
+    image_url: input.image_url ?? null,
+  }
+}
+
+function mapUpdateTeamInput(input: UpdateTeamInput) {
+  return {
+    ...input,
+    ...(Object.hasOwn(input, 'logo_url') ? { logo_url: input.logo_url ?? null } : null),
+    ...(Object.hasOwn(input, 'image_url') ? { image_url: input.image_url ?? null } : null),
+  }
+}
+
 export async function getTeams() {
   const { data, error } = await supabase
     .from('teams')
@@ -38,7 +56,7 @@ export async function getTeams() {
 export async function createTeam(input: CreateTeamInput) {
   const { data, error } = await supabase
     .from('teams')
-    .insert(input)
+    .insert(mapCreateTeamInput(input))
     .select(teamColumns)
     .single()
 
@@ -52,7 +70,7 @@ export async function createTeam(input: CreateTeamInput) {
 export async function updateTeam(teamId: string, input: UpdateTeamInput) {
   const { data, error } = await supabase
     .from('teams')
-    .update(input)
+    .update(mapUpdateTeamInput(input))
     .eq('id', teamId)
     .select(teamColumns)
     .single()
@@ -106,4 +124,8 @@ export async function toggleTeamActive(teamId: string, active: boolean) {
 
 export async function uploadTeamLogo(file: File) {
   return uploadTeamLogoImage(file)
+}
+
+export async function uploadTeamImage(file: File) {
+  return uploadTeamImageAsset(file)
 }
