@@ -17,6 +17,7 @@ const defaultValues: TeamFormValues = {
   description: '',
   active: true,
   logo_file: null,
+  image_file: null,
 }
 
 function mapTeamToFormValues(team: Team | null | undefined): TeamFormValues {
@@ -29,6 +30,7 @@ function mapTeamToFormValues(team: Team | null | undefined): TeamFormValues {
     description: team.description ?? '',
     active: team.active,
     logo_file: null,
+    image_file: null,
   }
 }
 
@@ -43,6 +45,7 @@ export function TeamForm({
   const [values, setValues] = useState<TeamFormValues>(defaultValues)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null)
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (!open) {
@@ -51,6 +54,7 @@ export function TeamForm({
 
     setValues(mapTeamToFormValues(team))
     setLogoPreviewUrl(team?.logo_url ?? null)
+    setImagePreviewUrl(team?.image_url ?? null)
     setErrorMessage(null)
   }, [open, team])
 
@@ -66,6 +70,19 @@ export function TeamForm({
       URL.revokeObjectURL(nextPreviewUrl)
     }
   }, [values.logo_file])
+
+  useEffect(() => {
+    if (!values.image_file) {
+      return
+    }
+
+    const nextPreviewUrl = URL.createObjectURL(values.image_file)
+    setImagePreviewUrl(nextPreviewUrl)
+
+    return () => {
+      URL.revokeObjectURL(nextPreviewUrl)
+    }
+  }, [values.image_file])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -87,6 +104,7 @@ export function TeamForm({
     <TeamDialog
       open={open}
       title={team ? 'Editar equipo' : 'Nuevo equipo'}
+      panelClassName="dialog-panel--team"
       onClose={onClose}
       footer={
         <>
@@ -115,6 +133,7 @@ export function TeamForm({
           </div>
 
           <div className="field team-form__logo-field">
+            <label htmlFor="team-logo-file">Escudo del equipo</label>
             <label
               htmlFor="team-logo-file"
               className={`image-picker image-picker--team${logoPreviewUrl ? ' image-picker--filled' : ''}`}
@@ -177,6 +196,69 @@ export function TeamForm({
             {submitStatusMessage ? (
               <p className="field-status">{submitStatusMessage}</p>
             ) : null}
+          </div>
+
+          <div className="field team-form__image-field">
+            <label htmlFor="team-image-file">Imagen del equipo</label>
+            <label
+              htmlFor="team-image-file"
+              className={`image-picker image-picker--team image-picker--team-wide${imagePreviewUrl ? ' image-picker--filled' : ''}`}
+            >
+              <span className="sr-only">Seleccionar imagen del equipo</span>
+              <input
+                id="team-image-file"
+                name="image_file"
+                className="image-picker__input"
+                type="file"
+                accept="image/png,image/jpg,image/jpeg,image/webp"
+                onChange={(event) => {
+                  const nextFile = event.target.files?.[0] ?? null
+
+                  if (!nextFile) {
+                    setValues((current) => ({ ...current, image_file: null }))
+                    setImagePreviewUrl(team?.image_url ?? null)
+                    setErrorMessage(null)
+                    return
+                  }
+
+                  try {
+                    validateImageFile(nextFile)
+                    setValues((current) => ({ ...current, image_file: nextFile }))
+                    setErrorMessage(null)
+                  } catch (error) {
+                    setValues((current) => ({ ...current, image_file: null }))
+                    setImagePreviewUrl(team?.image_url ?? null)
+                    setErrorMessage(
+                      error instanceof Error
+                        ? error.message
+                        : 'No pudimos validar el archivo seleccionado.',
+                    )
+                    event.target.value = ''
+                  }
+                }}
+              />
+
+              <span className="image-picker__surface">
+                {imagePreviewUrl ? (
+                  <img
+                    className="image-picker__preview"
+                    src={imagePreviewUrl}
+                    alt={team ? `Imagen actual de ${team.name}` : 'Preview de la imagen del equipo'}
+                  />
+                ) : (
+                  <svg className="image-picker__icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      d="M12 16V7m0 0-3.5 3.5M12 7l3.5 3.5M5 17.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-.5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.8"
+                    />
+                  </svg>
+                )}
+              </span>
+            </label>
           </div>
         </div>
 

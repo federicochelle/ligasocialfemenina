@@ -32,6 +32,10 @@ export function uploadTeamLogo(file: File) {
   return uploadImage(file, 'teams')
 }
 
+export function uploadTeamImage(file: File) {
+  return uploadImage(file, 'team-images')
+}
+
 export function uploadNewsImage(file: File) {
   return uploadImage(file, 'news')
 }
