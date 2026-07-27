@@ -230,10 +230,6 @@ function buildLeaders(
       } satisfies PlayerLeader
     })
     .sort((left, right) => {
-      if (right.total !== left.total) {
-        return right.total - left.total
-      }
-
       if (right.average !== left.average) {
         return right.average - left.average
       }
