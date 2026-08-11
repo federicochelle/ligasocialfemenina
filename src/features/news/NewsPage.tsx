@@ -203,7 +203,7 @@ export function NewsPage() {
             onSearchChange={setSearchTerm}
             searchPlaceholder="Buscar por titular o contenido"
             primaryAction={openCreateDialog}
-            primaryLabel="+ Nueva noticia"
+            primaryLabel="Nueva noticia"
           />
         }
       >

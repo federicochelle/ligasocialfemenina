@@ -1,45 +1,28 @@
-import { useMemo } from 'react'
-import { useAuth } from '../auth/useAuth.ts'
-import { adminNavigationItems } from './adminNavigation.ts'
+import logoSrc from '../../../logo.webp'
 
 type HeaderProps = {
-  pageTitle: string
-  pathname: string
+  isMobileMenuOpen: boolean
+  onToggleMobileMenu: () => void
 }
 
-function getUserDisplayName(email: string | undefined) {
-  if (!email) {
-    return 'Administrador'
-  }
-
-  return email.split('@')[0] ?? email
-}
-
-function getBreadcrumb(pathname: string) {
-  if (pathname.startsWith('/admin/partidos/') && pathname.endsWith('/estadisticas')) {
-    return 'Partidos / Estadísticas'
-  }
-
-  const matchedItem = adminNavigationItems.find((item) => item.path === pathname)
-
-  return matchedItem?.shortLabel ?? matchedItem?.label ?? 'Inicio'
-}
-
-export function Header({ pageTitle, pathname }: HeaderProps) {
-  const { user } = useAuth()
-
-  const breadcrumb = useMemo(() => getBreadcrumb(pathname), [pathname])
-
+export function Header({ isMobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   return (
     <header className="admin-header">
-      <div>
-        <p className="admin-header__breadcrumb">Admin / {breadcrumb}</p>
-        <h2 className="admin-header__title">{pageTitle}</h2>
-      </div>
+      <div className="admin-header__mobile-bar">
+        <img className="admin-header__mobile-logo" src={logoSrc} alt="Liga Social Femenina" />
 
-      <div className="admin-header__user">
-        <span className="admin-header__user-label">Sesión activa</span>
-        <strong className="admin-header__user-name">{getUserDisplayName(user?.email)}</strong>
+        <button
+          className="admin-header__menu-button"
+          type="button"
+          onClick={onToggleMobileMenu}
+          aria-label={isMobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="admin-sidebar-navigation"
+        >
+          <span />
+          <span />
+          <span />
+        </button>
       </div>
     </header>
   )

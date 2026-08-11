@@ -1,17 +1,27 @@
+import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Header } from './Header.tsx'
 import { Sidebar } from './Sidebar.tsx'
-import { getAdminPageTitle } from './adminNavigation.ts'
 
 export function AdminLayout() {
   const location = useLocation()
-  const pageTitle = getAdminPageTitle(location.pathname)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [location.pathname])
 
   return (
     <div className="admin-layout">
-      <Sidebar />
+      <Sidebar
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={() => setIsMobileMenuOpen(false)}
+      />
       <div className="admin-main">
-        <Header pageTitle={pageTitle} pathname={location.pathname} />
+        <Header
+          isMobileMenuOpen={isMobileMenuOpen}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((current) => !current)}
+        />
         <main className="admin-content">
           <Outlet />
         </main>

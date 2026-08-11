@@ -181,7 +181,7 @@ export function TeamsPage() {
             onSearchChange={setSearchTerm}
             searchPlaceholder="Buscar por nombre o descripción"
             primaryAction={openCreateDialog}
-            primaryLabel="+ Nuevo equipo"
+            primaryLabel="Nuevo equipo"
           />
         }
       >

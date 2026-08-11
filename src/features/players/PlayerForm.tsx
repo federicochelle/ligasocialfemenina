@@ -108,10 +108,6 @@ export function PlayerForm({
     >
       <form id="player-form" className="teams-form" onSubmit={handleSubmit}>
         <section className="form-section">
-          <div className="form-section__header">
-            <h3 className="form-section__title">Datos deportivos</h3>
-          </div>
-
           <div className="field-grid">
             <div className="field">
               <label htmlFor="player-name">Nombre *</label>
@@ -168,10 +164,6 @@ export function PlayerForm({
         </section>
 
         <section className="form-section">
-          <div className="form-section__header">
-            <h3 className="form-section__title">Datos personales</h3>
-          </div>
-
           <div className="field-grid">
             <div className="field">
               <label htmlFor="player-identity-document">Cédula de identidad</label>

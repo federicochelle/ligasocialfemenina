@@ -167,7 +167,7 @@ export function MatchForm({
     >
       <form id="match-form" className="teams-form" onSubmit={handleSubmit}>
         <div className="field">
-          <label htmlFor="match-matchday">Fecha / Jornada *</label>
+          <label htmlFor="match-matchday">Fecha *</label>
           <select
             id="match-matchday"
             name="matchday_id"
@@ -281,15 +281,6 @@ export function MatchForm({
   )
 }
 
-const matchdayDateFormatter = new Intl.DateTimeFormat('es-UY', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-})
-
 function formatMatchdayOptionLabel(matchday: MatchdayOption) {
-  const venue = matchday.venue?.trim() || 'A definir'
-  const dateLabel = matchdayDateFormatter.format(new Date(matchday.match_date))
-
-  return `Fecha ${matchday.round_number} — ${dateLabel} — ${venue}`
+  return `Fecha ${matchday.round_number}`
 }

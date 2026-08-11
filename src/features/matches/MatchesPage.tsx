@@ -235,7 +235,7 @@ export function MatchesPage() {
             onSearchChange={setSearchTerm}
             searchPlaceholder="Buscar por equipos, fecha, cancha, temporada o estado"
             primaryAction={openCreateDialog}
-            primaryLabel="+ Nuevo partido"
+            primaryLabel="Nuevo partido"
           />
         }
       >

@@ -30,6 +30,18 @@ const timeFormatter = new Intl.DateTimeFormat('es-UY', {
   minute: '2-digit',
 })
 
+function parseLocalDateOnly(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+
+  if (!match) {
+    return new Date(value)
+  }
+
+  const [, year, month, day] = match
+
+  return new Date(Number(year), Number(month) - 1, Number(day))
+}
+
 function getMatchResult(match: Match) {
   if (match.status === 'scheduled') {
     return 'Pendiente'
@@ -120,7 +132,7 @@ function getMatchDateLabel(match: Match) {
     return fullDateLabel
   }
 
-  const matchdayDate = shortDateFormatter.format(new Date(match.matchday.match_date))
+  const matchdayDate = shortDateFormatter.format(parseLocalDateOnly(match.matchday.match_date))
   const matchTime = timeFormatter.format(matchDate)
 
   return `Fecha ${match.matchday.round_number} · ${matchdayDate} · ${matchTime}`

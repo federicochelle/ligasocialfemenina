@@ -4,6 +4,11 @@ import logoSrc from '../../../logo.webp'
 import { supabase } from '../../lib/supabaseClient.ts'
 import { adminNavigationItems } from './adminNavigation.ts'
 
+type SidebarProps = {
+  isMobileMenuOpen: boolean
+  onCloseMobileMenu: () => void
+}
+
 function SidebarIcon({ icon }: { icon: (typeof adminNavigationItems)[number]['icon'] }) {
   switch (icon) {
     case 'home':
@@ -61,7 +66,7 @@ function SidebarIcon({ icon }: { icon: (typeof adminNavigationItems)[number]['ic
   }
 }
 
-export function Sidebar() {
+export function Sidebar({ isMobileMenuOpen, onCloseMobileMenu }: SidebarProps) {
   const navigate = useNavigate()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -78,47 +83,57 @@ export function Sidebar() {
       return
     }
 
+    onCloseMobileMenu()
     navigate('/login', { replace: true })
   }
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar__brand">
-        <img className="sidebar__logo" src={logoSrc} alt="Liga Social Femenina" />
-      </div>
+    <>
+      <button
+        className={isMobileMenuOpen ? 'sidebar__backdrop sidebar__backdrop--visible' : 'sidebar__backdrop'}
+        type="button"
+        aria-label="Cerrar menú"
+        onClick={onCloseMobileMenu}
+      />
+      <aside className={isMobileMenuOpen ? 'sidebar sidebar--mobile-open' : 'sidebar'}>
+        <div className="sidebar__brand">
+          <img className="sidebar__logo" src={logoSrc} alt="Liga Social Femenina" />
+        </div>
 
-      <div className="sidebar__divider" aria-hidden="true" />
+        <div className="sidebar__divider" aria-hidden="true" />
 
-      <nav className="sidebar__nav" aria-label="Navegación principal">
-        {adminNavigationItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            end={item.path === '/admin'}
-            className={({ isActive }) =>
-              isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
-            }
+        <nav id="admin-sidebar-navigation" className="sidebar__nav" aria-label="Navegación principal">
+          {adminNavigationItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === '/admin'}
+              onClick={onCloseMobileMenu}
+              className={({ isActive }) =>
+                isActive ? 'sidebar__link sidebar__link--active' : 'sidebar__link'
+              }
+            >
+              <span className="sidebar__link-icon" aria-hidden="true">
+                <SidebarIcon icon={item.icon} />
+              </span>
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="sidebar__footer">
+          {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
+
+          <button
+            className="secondary-button sidebar__signout"
+            type="button"
+            onClick={handleSignOut}
+            disabled={isSigningOut}
           >
-            <span className="sidebar__link-icon" aria-hidden="true">
-              <SidebarIcon icon={item.icon} />
-            </span>
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
-
-      <div className="sidebar__footer">
-        {errorMessage ? <p className="form-error">{errorMessage}</p> : null}
-
-        <button
-          className="secondary-button sidebar__signout"
-          type="button"
-          onClick={handleSignOut}
-          disabled={isSigningOut}
-        >
-          {isSigningOut ? 'Cerrando...' : 'Cerrar sesión'}
-        </button>
-      </div>
-    </aside>
+            {isSigningOut ? 'Cerrando...' : 'Cerrar sesión'}
+          </button>
+        </div>
+      </aside>
+    </>
   )
 }

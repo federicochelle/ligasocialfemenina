@@ -208,7 +208,7 @@ export function PlayersPage() {
             onSearchChange={setSearchTerm}
             searchPlaceholder="Buscar por nombre o equipo"
             primaryAction={openCreateDialog}
-            primaryLabel="+ Nueva jugadora"
+            primaryLabel="Nueva jugadora"
           />
         }
       >

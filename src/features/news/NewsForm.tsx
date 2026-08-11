@@ -3,6 +3,8 @@ import { validateImageFile } from '../images/image-upload.processor.ts'
 import { NewsDialog } from './NewsDialog.tsx'
 import type { News, NewsFormValues } from './news.types.ts'
 
+const NEWS_DRAFT_STORAGE_KEY = 'admin-news-form-draft'
+
 type NewsFormProps = {
   open: boolean
   news?: News | null
@@ -32,6 +34,39 @@ function mapNewsToFormValues(news: News | null | undefined): NewsFormValues {
   }
 }
 
+function readDraftValues(): NewsFormValues {
+  if (typeof window === 'undefined') {
+    return defaultValues
+  }
+
+  try {
+    const storedDraft = window.localStorage.getItem(NEWS_DRAFT_STORAGE_KEY)
+
+    if (!storedDraft) {
+      return defaultValues
+    }
+
+    const parsedDraft = JSON.parse(storedDraft) as Partial<NewsFormValues>
+
+    return {
+      title: typeof parsedDraft.title === 'string' ? parsedDraft.title : '',
+      excerpt: typeof parsedDraft.excerpt === 'string' ? parsedDraft.excerpt : '',
+      content: typeof parsedDraft.content === 'string' ? parsedDraft.content : '',
+      cover_file: null,
+    }
+  } catch {
+    return defaultValues
+  }
+}
+
+function clearDraftValues() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.removeItem(NEWS_DRAFT_STORAGE_KEY)
+}
+
 export function NewsForm({
   open,
   news,
@@ -49,10 +84,25 @@ export function NewsForm({
       return
     }
 
-    setValues(mapNewsToFormValues(news))
+    setValues(news ? mapNewsToFormValues(news) : readDraftValues())
     setCoverPreviewUrl(news?.cover_image ?? null)
     setErrorMessage(null)
   }, [open, news])
+
+  useEffect(() => {
+    if (!open || news || typeof window === 'undefined') {
+      return
+    }
+
+    window.localStorage.setItem(
+      NEWS_DRAFT_STORAGE_KEY,
+      JSON.stringify({
+        title: values.title,
+        excerpt: values.excerpt,
+        content: values.content,
+      }),
+    )
+  }, [news, open, values.content, values.excerpt, values.title])
 
   useEffect(() => {
     if (!values.cover_file) {
@@ -92,6 +142,10 @@ export function NewsForm({
       excerpt: values.excerpt.trim(),
       content: values.content.trim(),
     })
+
+    if (!news) {
+      clearDraftValues()
+    }
   }
 
   return (

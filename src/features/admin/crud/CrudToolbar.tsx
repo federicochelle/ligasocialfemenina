@@ -37,8 +37,20 @@ export function CrudToolbar({
       )}
 
       {primaryAction && primaryLabel ? (
-        <button type="button" className="primary-button" onClick={primaryAction} disabled={primaryDisabled}>
-          {primaryLabel}
+        <button
+          type="button"
+          className="primary-button crud-toolbar__primary-button"
+          onClick={primaryAction}
+          disabled={primaryDisabled}
+          aria-label={primaryLabel}
+        >
+          <span className="crud-toolbar__primary-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+          </span>
+          <span className="crud-toolbar__primary-label">{primaryLabel}</span>
         </button>
       ) : null}
     </div>
